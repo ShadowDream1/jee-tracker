@@ -82,27 +82,27 @@ def load_data(sheet):
 df_logs = load_data("Logs")
 df_rev = load_data("Revision")
 
-# --- PHASE 3 SCHEDULE DATA (Extracted from PDF) ---
-# Start Date: 08-02-2026 
+# --- PHASE 3 SCHEDULE DATA ---
+# [cite_start]Start Date: 08-02-2026 [cite: 1]
 PHASE_3_SCHEDULE = [
-    {"Test": "Major Test-1", "Date": "2026-02-08", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-2", "Date": "2026-02-15", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-3", "Date": "2026-02-22", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-4", "Date": "2026-03-01", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-5", "Date": "2026-03-08", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-6", "Date": "2026-03-15", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-7", "Date": "2026-03-18", "Pattern": "JEE Main", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-8", "Date": "2026-03-20", "Pattern": "JEE Main", "Syllabus": "Full Syllabus"},
-    {"Test": "AIOOT (Test-9)", "Date": "2026-03-22", "Pattern": "JEE Main", "Syllabus": "Full Syllabus (09:00 AM)"},
-    {"Test": "Major Test-10", "Date": "2026-03-25", "Pattern": "JEE Main", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-11", "Date": "2026-03-27", "Pattern": "JEE Main", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-12", "Date": "2026-03-29", "Pattern": "JEE Main", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-13", "Date": "2026-04-12", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-14", "Date": "2026-04-19", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-15", "Date": "2026-04-26", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus"},
-    {"Test": "AIOOT (Test-16)", "Date": "2026-05-03", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus"},
-    {"Test": "AIOOT (Test-17)", "Date": "2026-05-10", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus"},
-    {"Test": "Major Test-18", "Date": "2026-05-13", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus"},
+    [cite_start]{"Test": "Major Test-1", "Date": "2026-02-08", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus [cite: 115]"},
+    [cite_start]{"Test": "Major Test-2", "Date": "2026-02-15", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus [cite: 115]"},
+    [cite_start]{"Test": "Major Test-3", "Date": "2026-02-22", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus [cite: 115]"},
+    [cite_start]{"Test": "Major Test-4", "Date": "2026-03-01", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus [cite: 115]"},
+    [cite_start]{"Test": "Major Test-5", "Date": "2026-03-08", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus [cite: 115]"},
+    [cite_start]{"Test": "Major Test-6", "Date": "2026-03-15", "Pattern": "Main + Adv", "Syllabus": "Full Syllabus [cite: 115]"},
+    [cite_start]{"Test": "Major Test-7", "Date": "2026-03-18", "Pattern": "JEE Main", "Syllabus": "Full Syllabus [cite: 119]"},
+    [cite_start]{"Test": "Major Test-8", "Date": "2026-03-20", "Pattern": "JEE Main", "Syllabus": "Full Syllabus [cite: 119]"},
+    [cite_start]{"Test": "AIOOT (Test-9)", "Date": "2026-03-22", "Pattern": "JEE Main", "Syllabus": "Full Syllabus (09:00 AM) [cite: 119]"},
+    [cite_start]{"Test": "Major Test-10", "Date": "2026-03-25", "Pattern": "JEE Main", "Syllabus": "Full Syllabus [cite: 119]"},
+    [cite_start]{"Test": "Major Test-11", "Date": "2026-03-27", "Pattern": "JEE Main", "Syllabus": "Full Syllabus [cite: 119]"},
+    [cite_start]{"Test": "Major Test-12", "Date": "2026-03-29", "Pattern": "JEE Main", "Syllabus": "Full Syllabus [cite: 119]"},
+    [cite_start]{"Test": "Major Test-13", "Date": "2026-04-12", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus [cite: 123]"},
+    [cite_start]{"Test": "Major Test-14", "Date": "2026-04-19", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus [cite: 123]"},
+    [cite_start]{"Test": "Major Test-15", "Date": "2026-04-26", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus [cite: 123]"},
+    [cite_start]{"Test": "AIOOT (Test-16)", "Date": "2026-05-03", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus [cite: 123]"},
+    [cite_start]{"Test": "AIOOT (Test-17)", "Date": "2026-05-10", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus [cite: 123]"},
+    [cite_start]{"Test": "Major Test-18", "Date": "2026-05-13", "Pattern": "JEE Adv (2 Papers)", "Syllabus": "Full Syllabus [cite: 123]"},
 ]
 
 # --- SYLLABUS FROM PDF (Pages 1-2) ---
@@ -202,22 +202,24 @@ with tab_mastery:
     
     col_m1, col_m2, col_m3 = st.columns(3)
     
-    # Function to render subject column
+    # Function to render subject column with UNIQUE KEYS
     def render_subject(col, name, chapters):
         with col:
             st.subheader(name)
             for chap in chapters:
-                # Mock calculation - replace with real logic from df_logs
-                # status = calculate_status(chap) 
+                # We use 'name' + 'chap' to create a unique key (e.g., Physics_Vectors)
+                # This prevents "Vectors" in Maths crashing with "Vectors" in Physics
+                safe_key = f"{name}_{chap}".replace(" ", "_")
+                
                 with st.expander(chap):
                     c_chk1, c_chk2 = st.columns(2)
-                    c_chk1.checkbox("Module", key=f"mod_{chap}")
-                    c_chk2.checkbox("PYQs", key=f"pyq_{chap}")
-                    st.progress(0.5) # Dynamic based on checkboxes
+                    c_chk1.checkbox("Module", key=f"mod_{safe_key}")
+                    c_chk2.checkbox("PYQs", key=f"pyq_{safe_key}")
+                    st.progress(0.5) 
     
-    render_subject(col_m1, "Physics 🔭", SYLLABUS["Physics"])
-    render_subject(col_m2, "Chemistry 🧪", SYLLABUS["Chemistry"])
-    render_subject(col_m3, "Maths 📐", SYLLABUS["Maths"])
+    render_subject(col_m1, "Physics", SYLLABUS["Physics"])
+    render_subject(col_m2, "Chemistry", SYLLABUS["Chemistry"])
+    render_subject(col_m3, "Maths", SYLLABUS["Maths"])
 
 # --- TAB 4: ZEN MODE ---
 with tab_focus:
@@ -230,6 +232,11 @@ with tab_focus:
         if st.button("START FOCUS TIMER"):
             st.warning("Minimizing distractions...")
             # Timer logic would go here
+            with st.empty():
+                for seconds in range(minutes * 60, 0, -1):
+                    st.metric("Time Remaining", f"{seconds // 60}:{seconds % 60:02d}")
+                    time.sleep(1)
+                st.success("Session Complete!")
     
     with c_f2:
         st.markdown("**Focus Soundscapes**")
