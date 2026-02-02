@@ -25,7 +25,7 @@ st.markdown("""
         color: white;
     }
     </style>
-    """, unsafe_allow_html=True) # FIXED PARAMETER NAME HERE
+    """, unsafe_allow_html=True)
 
 # --- DATABASE CONNECTION ---
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -102,26 +102,25 @@ with tab_log:
 
         with c2:
             hours = st.slider("Hours Studied", 0.5, 8.0, 2.0, 0.5)
-            st.write("Marked for Later?")
-            save_q = st.checkbox("Save high-yield questions from this session?")
+            save_q = st.checkbox("Mark this topic for priority re-solving?")
             
         if st.button("🔥 Complete Session"):
             if topic:
                 st.balloons()
-                # Save Log
                 new_row = pd.DataFrame([{"Date": str(datetime.now().date()), "Block": block, "Subject": subject, "Topic": topic, "Hours": hours}])
                 updated_df = pd.concat([df_logs, new_row], ignore_index=True)
                 conn.update(worksheet="Logs", data=updated_df)
                 
-                # Update Revision
                 if topic not in df_rev['Topic'].values:
                     new_rev = pd.DataFrame([{"Topic": topic, "Last_Studied": str(datetime.now().date()), "Next_Review": str(datetime.now().date() + timedelta(days=1)), "Iteration": 1}])
                     df_rev = pd.concat([df_rev, new_rev], ignore_index=True)
                     conn.update(worksheet="Revision", data=df_rev)
                 
-                st.success("Log Synced! Sound Chime: 🔔")
+                st.success("Log Synced! 🔔")
                 time.sleep(1)
                 st.rerun()
+            else:
+                st.warning("Please enter a topic name.")
 
 # --- TAB 2: REVISION TRACKER ---
 with tab_rev:
@@ -147,6 +146,29 @@ with tab_rev:
 # --- TAB 3: SYLLABUS CHECKLIST ---
 with tab_syllabus:
     st.header("Syllabus Master List")
-    # Using your provided syllabus lists
     chem_list = ["Mole Concept", "Atomic Structure", "Thermodynamics", "Equilibrium", "Electrochemistry", "P-Block", "Coordination", "General Organic", "Hydrocarbons", "Carbonyls"]
-    phys
+    phys_list = ["Units/Dim", "Kinematics", "NLM", "Rotation", "Gravitation", "Fluids", "Heat/Thermo", "Electrostatics", "EMI/AC", "Modern Physics"]
+    math_list = ["Complex Numbers", "Matrices", "P&C", "Probability", "Limits/Cont", "Integration", "Vectors/3D", "Coordinate Geometry"]
+    
+    s_col1, s_col2, s_col3 = st.columns(3)
+    with s_col1:
+        st.subheader("🧪 Chem")
+        for item in chem_list: st.checkbox(item, key=f"c_{item}")
+    with s_col2:
+        st.subheader("🔭 Phys")
+        for item in phys_list: st.checkbox(item, key=f"p_{item}")
+    with s_col3:
+        st.subheader("📐 Maths")
+        for item in math_list: st.checkbox(item, key=f"m_{item}")
+
+# --- TAB 4: FOCUS MODE ---
+with tab_focus:
+    st.header("🧘 Focus Timer")
+    f_min = st.number_input("Set Timer (Mins)", 1, 120, 25)
+    if st.button("Start Now"):
+        placeholder = st.empty()
+        for seconds in range(f_min * 60, 0, -1):
+            placeholder.metric("Time Remaining", f"{seconds // 60}:{seconds % 60:02d}")
+            time.sleep(1)
+        st.success("✔️ Session Complete!")
+        st.balloons()
