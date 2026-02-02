@@ -3,163 +3,208 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from streamlit_gsheets import GSheetsConnection
+import time
 
-# --- CONFIGURATION ---
-st.set_page_config(page_title="JEE Adv. Tracker", layout="wide", page_icon="⚛️")
+# --- APP CONFIG & THEME ---
+st.set_page_config(page_title="JEE Adv. Pro Tracker", layout="wide", page_icon="🎯")
+
+# --- CUSTOM CSS FOR UI ---
+st.markdown("""
+    <style>
+    .main {
+        background-color: #0e1117;
+    }
+    .stMetric {
+        background-color: #1e2130;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #3e4259;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 5px;
+        height: 3em;
+        background-color: #FF4B4B;
+        color: white;
+    }
+    </style>
+    """, unsafe_content_allowed=True)
 
 # --- DATABASE CONNECTION ---
-# This establishes a connection to your Google Sheet
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-def get_data(worksheet_name):
-    # Read data from the specific worksheet (Logs or Revision)
-    # ttl=0 ensures we don't cache old data
-    try:
-        return conn.read(worksheet=worksheet_name, ttl=0, usecols=list(range(6)))
-    except:
-        return pd.DataFrame()
+def load_logs():
+    return conn.read(worksheet="Logs", ttl=0)
 
-def update_data(df, worksheet_name):
-    # Write data back to the sheet
-    conn.update(worksheet=worksheet_name, data=df)
+def load_revision():
+    return conn.read(worksheet="Revision", ttl=0)
 
-# --- SIDEBAR & QUOTE ---
-st.sidebar.title("🚀 JEE Advanced Mode")
-st.sidebar.markdown("*“If I push hard, I think I can finish by the end of March.”*")
-st.sidebar.markdown("---")
-
-# --- LOAD DATA ---
-# We load data at the start to calculate streaks
+# --- DATA LOADING ---
 try:
-    df_logs = get_data("Logs")
-    # Ensure correct columns if sheet is empty
-    if df_logs.empty:
-        df_logs = pd.DataFrame(columns=["Date", "Block", "Subject", "Topic", "Hours", "Focus_Area"])
-    
-    df_rev = get_data("Revision")
-    if df_rev.empty:
-        df_rev = pd.DataFrame(columns=["Topic", "Last_Studied", "Next_Review", "Iteration"])
-
-    # Streak Calculation
-    if not df_logs.empty:
-        # Convert Date column to datetime objects
-        df_logs['Date'] = pd.to_datetime(df_logs['Date'], errors='coerce').dt.date
-        unique_days = df_logs['Date'].nunique()
-        st.sidebar.metric("Active Days Tracked", f"{unique_days} Days")
-    else:
-        st.sidebar.info("Start logging to see stats.")
-
-except Exception as e:
-    st.error(f"Connection Error: Please check your Secrets! {e}")
+    df_logs = load_logs()
+    df_rev = load_revision()
+except:
+    st.error("Connect your Google Sheet first!")
     st.stop()
 
-# --- MAIN TABS ---
-tab1, tab2, tab3, tab4 = st.tabs(["⏱️ Daily Logger", "📊 Analytics", "🧠 Spaced Revision", "📜 Strategy"])
+# --- SIDEBAR: THE VIBE CONSOLE ---
+st.sidebar.title("🎮 Vibe Console")
 
-# --- TAB 1: DAILY LOGGER ---
-with tab1:
-    st.header("Log Your Blocks")
-    c1, c2 = st.columns(2)
+# 1. Motivational Quote
+quotes = [
+    "“The only way to learn mathematics is to do mathematics.” – Paul Halmos",
+    "“Inorganic is scoring. Don't neglect the NCERT lines.”",
+    "“Discipline is doing what needs to be done, even if you don't want to.”",
+    "“Your future self will thank you for today's Block 1.”"
+]
+st.sidebar.caption(quotes[int(time.time() % len(quotes))])
+
+# 2. Background / Theme
+theme = st.sidebar.selectbox("Theme", ["Deep Space", "Midnight Study", "Forest Rain"])
+
+# 3. Focus Music (Embeds)
+st.sidebar.subheader("🎧 Focus Sounds")
+track = st.sidebar.radio("Audio Mode", ["Silence", "Rain", "White Noise", "Brown Noise"])
+audio_urls = {
+    "Rain": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", # Replace with actual loop URLs
+    "White Noise": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    "Brown Noise": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+}
+if track != "Silence":
+    st.sidebar.audio(audio_urls[track], format="audio/mp3", loop=True)
+
+# 4. Links Widget
+st.sidebar.subheader("🔗 Quick Links")
+st.sidebar.markdown("[🎯 Practice on Marks.app](https://web.getmarks.app/)")
+
+# --- MAIN UI: COUNTDOWNS ---
+col_c1, col_c2, col_c3 = st.columns(3)
+
+def get_countdown(target_date):
+    delta = target_date - datetime.now()
+    return f"{delta.days}d {delta.seconds//3600}h"
+
+# JEE Main 2nd Attempt: April 2, 2026
+# JEE Advanced: May 18, 2026
+c_april = datetime(2026, 4, 2)
+c_may = datetime(2026, 5, 18)
+
+col_c1.metric("JEE Main (Apr 2)", get_countdown(c_april))
+col_c2.metric("JEE Advanced (May 18)", get_countdown(c_may))
+
+# --- TABS ---
+tab_log, tab_rev, tab_syllabus, tab_focus = st.tabs(["⏱️ Daily Logger", "🧠 Spaced Repetition", "📚 Syllabus Reference", "🧘 Focus Mode"])
+
+# --- TAB 1: SMART LOGGER ---
+with tab_log:
+    st.header("Log Session")
     
-    with c1:
-        date_input = st.date_input("Date", datetime.now())
-        block_input = st.selectbox("Select Block", [
-            "Block 1: Pure Maths (5AM - 11AM)", 
-            "Block 2: Spaced Revision (1PM - 3:30PM)", 
-            "Block 3: Phys/Chem Solving (5PM - 10PM)", 
-            "Block 4: Inorganic/Short Notes (Late Night)"
-        ])
-        subject_input = st.radio("Subject", ["Mathematics", "Physics", "Chemistry"], horizontal=True)
-        topic_input = st.text_input("Chapter/Topic Name")
-
-    with c2:
-        hours_input = st.number_input("Hours", 0.0, 12.0, step=0.5, value=2.0)
-        st.write("**Focus:**")
-        chk_cols = st.columns(4)
-        done_mod = chk_cols[0].checkbox("Module")
-        done_pyq = chk_cols[1].checkbox("PYQ")
-        done_rev = chk_cols[2].checkbox("RevBook")
-        done_notes = chk_cols[3].checkbox("Notes")
-        
-        focus = []
-        if done_mod: focus.append("Module")
-        if done_pyq: focus.append("PYQ")
-        if done_rev: focus.append("RevBook")
-        if done_notes: focus.append("Notes")
-        
-        if st.button("✅ Log Session", type="primary"):
-            if not topic_input:
-                st.error("Topic name required!")
+    with st.container():
+        c1, c2 = st.columns(2)
+        with c1:
+            block = st.selectbox("Select Study Block", [
+                "Block 1 (5AM-11AM): Pure Maths",
+                "Block 2 (1PM-4PM): Revision",
+                "Block 3 (5PM-10PM): Physics/Chem",
+                "Block 4 (Late Night): Inorganic NCERT"
+            ])
+            
+            # Logic: Auto-lock subject for Block 1 and Block 4
+            if "Block 1" in block:
+                subject = st.selectbox("Subject", ["Mathematics"], disabled=True)
+            elif "Block 4" in block:
+                subject = st.selectbox("Subject", ["Chemistry (Inorganic)"], disabled=True)
             else:
-                new_entry = pd.DataFrame([{
-                    "Date": str(date_input),
-                    "Block": block_input,
-                    "Subject": subject_input,
-                    "Topic": topic_input,
-                    "Hours": hours_input,
-                    "Focus_Area": ", ".join(focus)
-                }])
-                updated_logs = pd.concat([df_logs, new_entry], ignore_index=True)
-                update_data(updated_logs, "Logs") # Save to Google Sheet
-                
-                # Revision Logic
-                if "Revision" in block_input or st.checkbox("Add to Spaced Cycle?", value=True):
-                    next_date = date_input + timedelta(days=1)
-                    new_rev_entry = pd.DataFrame([{
-                        "Topic": topic_input,
-                        "Last_Studied": str(date_input),
-                        "Next_Review": str(next_date),
-                        "Iteration": 1
-                    }])
-                    updated_rev = pd.concat([df_rev, new_rev_entry], ignore_index=True)
-                    update_data(updated_rev, "Revision") # Save to Google Sheet
-                
-                st.success("Saved to Cloud Database!")
-                st.rerun()
+                subject = st.selectbox("Subject", ["Physics", "Chemistry (Physical/Org)", "Mathematics"])
+            
+            topic = st.text_input("Topic Name", placeholder="Enter Chapter...")
 
-# --- TAB 2: ANALYTICS ---
-with tab2:
-    if not df_logs.empty:
-        today_data = df_logs[df_logs['Date'] == datetime.now().date()]
-        st.metric("Hours Today", f"{today_data['Hours'].sum()} hrs")
-        
-        # Simple Pie Chart
-        st.subheader("Subject Split")
-        fig, ax = plt.subplots()
-        df_logs.groupby("Subject")["Hours"].sum().plot.pie(autopct='%1.1f%%', ax=ax)
-        st.pyplot(fig)
+        with c2:
+            hours = st.slider("Hours Studied", 0.5, 6.0, 2.0, 0.5)
+            st.write("Resources Used:")
+            res_cols = st.columns(2)
+            m = res_cols[0].checkbox("FIITJEE Module")
+            p = res_cols[0].checkbox("20Y PYQs")
+            r = res_cols[1].checkbox("Review Booklet")
+            s = res_cols[1].checkbox("Short Notes")
+            
+        if st.button("🔥 Complete Session"):
+            if topic:
+                # Add sound effect (Browser plays this on success)
+                st.balloons()
+                st.toast("Session Saved! Playing Chime...", icon="🔔")
+                
+                # Logic to save to GSheets
+                new_row = pd.DataFrame([{"Date": str(datetime.now().date()), "Block": block, "Subject": subject, "Topic": topic, "Hours": hours}])
+                updated_df = pd.concat([df_logs, new_row], ignore_index=True)
+                conn.update(worksheet="Logs", data=updated_df)
+                
+                # Add to revision if not there
+                if topic not in df_rev['Topic'].values:
+                    new_rev = pd.DataFrame([{"Topic": topic, "Last_Studied": str(datetime.now().date()), "Next_Review": str(datetime.now().date() + timedelta(days=1)), "Iteration": 1}])
+                    df_rev = pd.concat([df_rev, new_rev], ignore_index=True)
+                    conn.update(worksheet="Revision", data=df_rev)
+                
+                st.success("Log Synced to Cloud!")
+            else:
+                st.warning("Please enter a topic name.")
 
-# --- TAB 3: SPACED REVISION ---
-with tab3:
-    st.header("Due for Revision")
-    if not df_rev.empty:
-        # Convert date strings to objects for comparison
-        df_rev['Next_Review'] = pd.to_datetime(df_rev['Next_Review']).dt.date
-        today = datetime.now().date()
-        
-        due = df_rev[df_rev['Next_Review'] <= today]
-        
-        if due.empty:
-            st.success("No revisions due!")
-        else:
-            for i, row in due.iterrows():
-                if st.button(f"Mark Revised: {row['Topic']}", key=f"rev_{i}"):
-                    # Logic: Update date by 2^n
-                    new_iter = int(row['Iteration']) + 1
-                    days_add = 2 ** int(row['Iteration'])
-                    new_date = today + timedelta(days=days_add)
-                    
+# --- TAB 2: REVISION TRACKER ---
+with tab_rev:
+    st.header("Spaced Revision List")
+    st.caption("Showing chapters based on your study history.")
+    
+    df_rev['Next_Review'] = pd.to_datetime(df_rev['Next_Review']).dt.date
+    today = datetime.now().date()
+    due = df_rev[df_rev['Next_Review'] <= today]
+    
+    if due.empty:
+        st.success("No revisions due today. Keep pushing the syllabus!")
+    else:
+        for i, row in due.iterrows():
+            with st.expander(f"📌 {row['Topic']} (Last Revised: {row['Last_Studied']})"):
+                st.write(f"This is iteration #{row['Iteration']}.")
+                if st.button("Mark as Revised", key=f"rev_{i}"):
+                    days = 2**int(row['Iteration'])
+                    df_rev.at[i, 'Next_Review'] = str(today + timedelta(days=days))
                     df_rev.at[i, 'Last_Studied'] = str(today)
-                    df_rev.at[i, 'Next_Review'] = str(new_date)
-                    df_rev.at[i, 'Iteration'] = new_iter
-                    
-                    # Clean up dates for saving (convert back to string)
-                    save_df = df_rev.copy()
-                    save_df['Next_Review'] = save_df['Next_Review'].astype(str)
-                    
-                    update_data(save_df, "Revision")
+                    df_rev.at[i, 'Iteration'] = int(row['Iteration']) + 1
+                    conn.update(worksheet="Revision", data=df_rev)
                     st.rerun()
 
-# --- TAB 4: STRATEGY ---
-with tab4:
-    st.markdown("### Your Plan\n* **Block 1:** Maths\n* **Block 2:** Revision\n* **Block 3:** Phys/Chem\n* **Block 4:** Inorganic")
+# --- TAB 3: SYLLABUS REFERENCE ---
+with tab_syllabus:
+    st.header("Syllabus Checklist")
+    
+    col_s1, col_s2, col_s3 = st.columns(3)
+    
+    with col_s1:
+        with st.expander("🧪 Chemistry"):
+            st.markdown("**Physical:** Mole Concept, Thermodynamics, Equilibrium, Kinetics, Solid State.")
+            st.markdown("**Inorganic:** P-Block, Coordination, Metallurgy, Qualitative Analysis.")
+            st.markdown("**Organic:** Hydrocarbons, Halides, Alcohols, Carbonyls, Amines, Polymers.")
+            
+    with col_s2:
+        with st.expander("🔭 Physics"):
+            st.markdown("**Mechanics:** Kinematics, NLM, Rotation, Gravitation, Fluids.")
+            st.markdown("**Thermal:** Calorimetry, Thermo, KTG.")
+            st.markdown("**Elec/Mag:** Electrostatics, Capacitors, Current, EMI, AC.")
+            
+    with col_s3:
+        with st.expander("📐 Mathematics"):
+            st.markdown("**Algebra:** Sets, Complex, Matrices, P&C, Probability.")
+            st.markdown("**Calculus:** Limits, Derivatives, Integration, Diff Equations.")
+            st.markdown("**Coordinate:** Straight Lines, Circles, Conics.")
+
+# --- TAB 4: FOCUS MODE ---
+with tab_focus:
+    st.header("🧘 Focus Timer")
+    duration = st.number_input("Set Timer (Minutes)", 1, 180, 25)
+    if st.button("Start Timer"):
+        st.warning("Focus Mode Active. Don't leave this tab!")
+        progress_bar = st.progress(0)
+        for i in range(duration * 60):
+            time.sleep(1)
+            progress_bar.progress((i + 1) / (duration * 60))
+        st.success("Time's Up! Great Session.")
+        st.balloons()
